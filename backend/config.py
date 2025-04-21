@@ -9,9 +9,14 @@ API_HOST = "0.0.0.0"
 API_PORT = 8000
 
 # CORS Configuration
-CORS_ORIGINS = ["*"]  # Allow all origins for development
-CORS_CREDENTIALS = False  # Set to False when using "*" for origins
-CORS_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://ifc-agent-api.onrender.com",
+    "https://*.onrender.com"
+]
+CORS_CREDENTIALS = True
+CORS_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"]
 CORS_HEADERS = ["*", "Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"]
 
 # AI Configuration

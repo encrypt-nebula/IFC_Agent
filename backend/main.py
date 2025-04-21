@@ -16,22 +16,33 @@ app = FastAPI(
     version=API_VERSION
 )
 
-# Configure CORS
+# Configure CORS - This must be the first middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
     allow_credentials=CORS_CREDENTIALS,
     allow_methods=CORS_METHODS,
     allow_headers=CORS_HEADERS,
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 # Add custom middleware to ensure CORS headers are set for all responses
 @app.middleware("http")
 async def add_cors_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = ", ".join(CORS_METHODS)
-    response.headers["Access-Control-Allow-Headers"] = ", ".join(CORS_HEADERS)
+    
+    # Get the origin from the request
+    origin = request.headers.get("origin")
+    
+    # If the origin is in our allowed origins, set it in the response
+    if origin in CORS_ORIGINS or any(origin.startswith(origin_pattern.replace("*", "")) for origin_pattern in CORS_ORIGINS if "*" in origin_pattern):
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = ", ".join(CORS_METHODS)
+        response.headers["Access-Control-Allow-Headers"] = ", ".join(CORS_HEADERS)
+        response.headers["Access-Control-Max-Age"] = "3600"
+    
     return response
 
 # Include routers

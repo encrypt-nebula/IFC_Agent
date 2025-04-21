@@ -1,10 +1,11 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks, Request
 from fastapi.responses import JSONResponse
 from models.schemas import FileInfo, FileList, SuccessResponse, ErrorResponse
 from models.file_model import file_storage
 from utils.storage import save_uploaded_file, delete_file
 from utils.security import is_safe_filename
 from utils.error_handling import FileUploadError, FileNotFoundError, handle_app_exception
+from config import CORS_ORIGINS, CORS_METHODS, CORS_HEADERS
 
 router = APIRouter(
     prefix="/files",
@@ -13,17 +14,27 @@ router = APIRouter(
 )
 
 @router.options("/upload")
-async def upload_file_options():
+async def upload_file_options(request: Request):
     """Handle CORS preflight requests for file uploads"""
-    return JSONResponse(
-        content={"message": "OK"},
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, Origin, X-Requested-With",
-            "Access-Control-Max-Age": "3600",
-        }
-    )
+    origin = request.headers.get("origin")
+    
+    # Check if the origin is allowed
+    if origin in CORS_ORIGINS or any(origin.startswith(origin_pattern.replace("*", "")) for origin_pattern in CORS_ORIGINS if "*" in origin_pattern):
+        return JSONResponse(
+            content={"message": "OK"},
+            headers={
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Methods": ", ".join(CORS_METHODS),
+                "Access-Control-Allow-Headers": ", ".join(CORS_HEADERS),
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Max-Age": "3600",
+            }
+        )
+    else:
+        return JSONResponse(
+            content={"message": "Origin not allowed"},
+            status_code=403
+        )
 
 @router.get("", response_model=FileList)
 async def list_files():
