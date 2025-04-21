@@ -15,6 +15,14 @@ async def health_check():
         "model_initialized": ai_service.initialized
     }
 
+@router.get("/simple")
+async def simple_health_check():
+    """Simple health check endpoint that returns a basic status message"""
+    return {
+        "status": "ok",
+        "message": "Backend is running!"
+    }
+
 @router.get("/model")
 async def model_status():
     """Check if the AI model is initialized"""
