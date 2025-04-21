@@ -56,14 +56,24 @@ app.include_router(upload_routes.router)
 app.include_router(query_routes.router)
 app.include_router(health_routes.router)
 
-# Serve static files from frontend build folder
+# Get the path to the frontend build directory
 frontend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "build")
-app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
 
-# Serve index.html on root path
-@app.get("/")
-async def serve_root():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
+# Check if the build directory exists
+if os.path.exists(frontend_path):
+    # Mount the entire build directory
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
+    
+    # Serve index.html on root path
+    @app.get("/")
+    async def serve_root():
+        return FileResponse(os.path.join(frontend_path, "index.html"))
+else:
+    # If build directory doesn't exist, just serve the API
+    @app.get("/")
+    async def root():
+        """Root endpoint to check if the API is running"""
+        return {"status": "ok", "message": "IFC Chat API is running"}
 
 # API health check endpoint
 @app.get("/api/health")
