@@ -52,7 +52,7 @@ async def add_cors_headers(request: Request, call_next):
     return response
 
 # Get the path to the frontend build directory
-frontend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "build")
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "build"))
 
 # Include API routers with prefixes to avoid conflicts with React routes
 app.include_router(upload_routes.router, prefix="/api")
