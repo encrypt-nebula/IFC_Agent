@@ -12,6 +12,19 @@ router = APIRouter(
     responses={404: {"model": ErrorResponse}, 500: {"model": ErrorResponse}}
 )
 
+@router.options("/upload")
+async def upload_file_options():
+    """Handle CORS preflight requests for file uploads"""
+    return JSONResponse(
+        content={"message": "OK"},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, Origin, X-Requested-With",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
+
 @router.get("", response_model=FileList)
 async def list_files():
     """List all uploaded files"""

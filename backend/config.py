@@ -9,16 +9,10 @@ API_HOST = "0.0.0.0"
 API_PORT = 8000
 
 # CORS Configuration
-CORS_ORIGINS = [
-    "http://localhost:3000", 
-    "http://localhost:3001",
-    "https://ifc-agent-api.onrender.com",
-    "https://*.onrender.com",
-    "*"  # Allow all origins for development
-]
-CORS_CREDENTIALS = True
-CORS_METHODS = ["*"]
-CORS_HEADERS = ["*"]
+CORS_ORIGINS = ["*"]  # Allow all origins for development
+CORS_CREDENTIALS = False  # Set to False when using "*" for origins
+CORS_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+CORS_HEADERS = ["*", "Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"]
 
 # AI Configuration
 GENAI_API_KEY = "AIzaSyBLuL_Nw20rrNOkKo07gNERvwfXV87Kz0Y"  # Replace with your Gemini API key
