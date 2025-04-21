@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+import os
 
 from config import (
     API_TITLE, API_DESCRIPTION, API_VERSION, API_HOST, API_PORT,
@@ -54,10 +56,19 @@ app.include_router(upload_routes.router)
 app.include_router(query_routes.router)
 app.include_router(health_routes.router)
 
-# Root endpoint
+# Serve static files from frontend build folder
+frontend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "build")
+app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
+
+# Serve index.html on root path
 @app.get("/")
-async def root():
-    """Root endpoint to check if the API is running"""
+async def serve_root():
+    return FileResponse(os.path.join(frontend_path, "index.html"))
+
+# API health check endpoint
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint to verify API is running"""
     return {"status": "ok", "message": "IFC Chat API is running"}
 
 # Exception handlers
