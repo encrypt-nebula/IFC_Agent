@@ -4,7 +4,7 @@ import { FiUpload } from "react-icons/fi";
 import { FaSpinner } from "react-icons/fa";
 import "./index.css";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "https://ifc-agent-api.onrender.com";
 
 function App() {
   const [messages, setMessages] = useState([]);
