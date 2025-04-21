@@ -42,4 +42,4 @@ app.add_exception_handler(Exception, handle_generic_exception)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn main:app --host 0.0.0.0 --port $PORT
+    uvicorn.run("main:app", host=API_HOST, port=API_PORT)
