@@ -19,7 +19,7 @@ async def upload_file_options(request: Request):
     origin = request.headers.get("origin")
     
     # Check if the origin is allowed
-    if origin in CORS_ORIGINS or any(origin.startswith(origin_pattern.replace("*", "")) for origin_pattern in CORS_ORIGINS if "*" in origin_pattern):
+    if origin and (origin in CORS_ORIGINS or any(origin.startswith(origin_pattern.replace("*", "")) for origin_pattern in CORS_ORIGINS if "*" in origin_pattern)):
         return JSONResponse(
             content={"message": "OK"},
             headers={
