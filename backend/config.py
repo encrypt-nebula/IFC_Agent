@@ -9,7 +9,13 @@ API_HOST = "0.0.0.0"
 API_PORT = 8000
 
 # CORS Configuration
-CORS_ORIGINS = ["http://localhost:3000", "http://localhost:3001"]  # React app's address
+CORS_ORIGINS = [
+    "http://localhost:3000", 
+    "http://localhost:3001",
+    "https://ifc-agent-api.onrender.com",
+    "https://*.onrender.com",
+    "*"  # Allow all origins for development
+]
 CORS_CREDENTIALS = True
 CORS_METHODS = ["*"]
 CORS_HEADERS = ["*"]
