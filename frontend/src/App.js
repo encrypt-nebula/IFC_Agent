@@ -4,7 +4,7 @@ import { FiUpload } from "react-icons/fi";
 import { FaSpinner } from "react-icons/fa";
 import "./index.css";
 
-const API_BASE_URL = "https://ifc-agent-api.onrender.com";
+const API_BASE_URL = "https://ifc-agent-api.onrender.com/api";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -21,7 +21,7 @@ function App() {
   useEffect(() => {
     const checkApiStatus = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/`);
+        const response = await fetch(`${API_BASE_URL}/health`);
         if (response.ok) {
           // eslint-disable-next-line no-unused-vars
           const data = await response.json();
@@ -204,19 +204,7 @@ function App() {
       </div>
 
       {/* Chat Container */}
-      <div ref={chatContainerRef} className="chat-container">
-        {messages.length === 0 && !isLoading && (
-          <div className="empty-chat">
-            <p>Upload an IFC file and start asking questions about it.</p>
-            <p>Example questions:</p>
-            <ul>
-              <li>What is the total area of the building?</li>
-              <li>List all the walls in the model.</li>
-              <li>What materials are used in this model?</li>
-            </ul>
-          </div>
-        )}
-
+      <div className="chat-container" ref={chatContainerRef}>
         {messages.map((message, index) => (
           <div
             key={index}
@@ -226,29 +214,27 @@ function App() {
           >
             <div className="message-group">
               <div className="message-header">
-                <span
-                  className={
-                    message.sender === "bot"
-                      ? "bot-label"
-                      : message.sender === "system"
-                      ? "system-label"
-                      : "user-label"
-                  }
-                >
-                  {message.sender === "bot"
-                    ? "ChatBot:"
-                    : message.sender === "system"
-                    ? "System:"
-                    : "You:"}
-                </span>
-                <span className="message-time">
+                {message.sender === "user" && (
+                  <span className="user-label">You:</span>
+                )}
+                {message.sender === "bot" && (
+                  <span className="bot-label">ChatBot:</span>
+                )}
+                {message.sender === "system" && (
+                  <span className="system-label">System:</span>
+                )}
+                <span className="timestamp">
                   {formatTimestamp(message.timestamp)}
                 </span>
               </div>
               <div
-                className={
-                  message.sender === "user" ? "user-message" : "bot-message"
-                }
+                className={`${
+                  message.sender === "user"
+                    ? "user-message"
+                    : message.sender === "bot"
+                    ? "bot-message"
+                    : "system-message"
+                }`}
               >
                 {message.text}
               </div>

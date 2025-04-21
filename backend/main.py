@@ -51,22 +51,33 @@ async def add_cors_headers(request: Request, call_next):
     
     return response
 
-# Include routers
-app.include_router(upload_routes.router)
-app.include_router(query_routes.router)
-app.include_router(health_routes.router)
-
 # Get the path to the frontend build directory
 frontend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "build")
 
+# Include API routers with prefixes to avoid conflicts with React routes
+app.include_router(upload_routes.router, prefix="/api")
+app.include_router(query_routes.router, prefix="/api")
+app.include_router(health_routes.router, prefix="/api")
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint to verify API is running"""
+    return {"status": "ok", "message": "IFC Chat API is running"}
+
 # Check if the build directory exists
 if os.path.exists(frontend_path):
-    # Mount the entire build directory
-    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
+    # Serve static files from the React build
+    app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
     
-    # Serve index.html on root path
-    @app.get("/")
-    async def serve_root():
+    # Serve the React app for all other routes (React Router support)
+    @app.get("/{full_path:path}")
+    async def serve_react(full_path: str):
+        # Skip API routes
+        if full_path.startswith("api/"):
+            return JSONResponse(status_code=404, content={"detail": "Not Found"})
+        
+        # Serve index.html for all other routes
         return FileResponse(os.path.join(frontend_path, "index.html"))
 else:
     # If build directory doesn't exist, just serve the API
@@ -74,12 +85,6 @@ else:
     async def root():
         """Root endpoint to check if the API is running"""
         return {"status": "ok", "message": "IFC Chat API is running"}
-
-# API health check endpoint
-@app.get("/api/health")
-async def health_check():
-    """Health check endpoint to verify API is running"""
-    return {"status": "ok", "message": "IFC Chat API is running"}
 
 # Exception handlers
 app.add_exception_handler(AppException, handle_app_exception)
