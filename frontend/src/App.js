@@ -21,7 +21,7 @@ function App() {
   useEffect(() => {
     const checkApiStatus = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/health/simple`);
+        const response = await fetch(`${API_BASE_URL}/`);
         if (response.ok) {
           // eslint-disable-next-line no-unused-vars
           const data = await response.json();
