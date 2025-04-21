@@ -1,8 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-import os
+from fastapi.responses import JSONResponse
 
 from config import (
     API_TITLE, API_DESCRIPTION, API_VERSION, API_HOST, API_PORT,
@@ -51,40 +49,16 @@ async def add_cors_headers(request: Request, call_next):
     
     return response
 
-# Get the path to the frontend build directory
-frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "build"))
+# Include routers
+app.include_router(upload_routes.router)
+app.include_router(query_routes.router)
+app.include_router(health_routes.router)
 
-# Include API routers with prefixes to avoid conflicts with React routes
-app.include_router(upload_routes.router, prefix="/api")
-app.include_router(query_routes.router, prefix="/api")
-app.include_router(health_routes.router, prefix="/api")
-
-# Health check endpoint
-@app.get("/health")
-async def health_check():
-    """Health check endpoint to verify API is running"""
+# Root endpoint
+@app.get("/")
+async def root():
+    """Root endpoint to check if the API is running"""
     return {"status": "ok", "message": "IFC Chat API is running"}
-
-# Check if the build directory exists
-if os.path.exists(frontend_path):
-    # Serve static files from the React build
-    app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
-    
-    # Serve the React app for all other routes (React Router support)
-    @app.get("/{full_path:path}")
-    async def serve_react(full_path: str):
-        # Skip API routes
-        if full_path.startswith("api/"):
-            return JSONResponse(status_code=404, content={"detail": "Not Found"})
-        
-        # Serve index.html for all other routes
-        return FileResponse(os.path.join(frontend_path, "index.html"))
-else:
-    # If build directory doesn't exist, just serve the API
-    @app.get("/")
-    async def root():
-        """Root endpoint to check if the API is running"""
-        return {"status": "ok", "message": "IFC Chat API is running"}
 
 # Exception handlers
 app.add_exception_handler(AppException, handle_app_exception)
